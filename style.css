@@ -1,0 +1,46 @@
+body{
+    min-height: 100vh;
+    background-color: azure;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+#GameBorder{
+    width: 1000px;
+    height: 700px;
+
+    position: relative;         /* children can be absolutely positioned relative to this */
+    background-color: bisque;
+    border: 2px solid navy;
+    border-radius: 6px;
+    overflow: hidden;           /* prevents water/fish/boat from overflowing visually */
+
+}
+#Water{
+    position: absolute;         /* attach to the bottom of GameBorder */
+    left: 0; right: 0; bottom: 0;
+    background-color: lightseagreen;
+    height: 50%;
+}
+#Boat{
+    position: absolute;
+    bottom: 50%;
+    left: 45%;
+}
+/*
+#BoatPlace{
+    
+    background-color: rgb(245, 200, 245);
+    width: 1000px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+*/
+/*
+    margin: auto;
+transform: translate(-50%);
+
+*/
