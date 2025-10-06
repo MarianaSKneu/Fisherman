@@ -8,7 +8,6 @@ const speedBoat = 20;
 const minX = 0;
 const maxXBoat = gameBorder.offsetWidth - boat.offsetWidth;
 
-
 const hook = document.getElementById('Hook');
 const hookwire = document.getElementById('HookWire');
 const water = document.getElementById('Water');
@@ -17,8 +16,14 @@ const topHookBottom = parseFloat(window.getComputedStyle(hook).bottom);
 const bottomHookBottom = 0;
 
 let hookY = topHookBottom;
-//let minHookBottom = 0;
-//let maxHookBottom = water.offsetHeight - 30;
+let hookX = parseFloat(window.getComputedStyle(hook).left);
+
+let hookwireY = parseFloat(window.getComputedStyle(hookwire).bottom);
+let hookwireX = parseFloat(window.getComputedStyle(hookwire).left);
+let hookwireHeight = parseFloat(hookwire.offsetHeight);
+
+const minHookLeft = hook.offsetLeft - boat.offsetLeft ;
+const maxHookLeft = maxXBoat + hook.offsetWidth;
 
 let isHookMoving = false;
 
@@ -41,13 +46,22 @@ document.addEventListener('keydown', (event) => {
         const k = (event.key || '').toLowerCase();
         if (k === 'arrowleft' || k === 'a') {
             boatX -= speedBoat;
+            hookX -= speedBoat;
+            hookwireX -=speedBoat;
+            if (boatX < minX) boatX = minX;
+            if (hookX < minHookLeft) {hookX = minHookLeft; hookwireX = minHookLeft;}
+
         } else if (k === 'arrowright' || k === 'd') {
             boatX += speedBoat;
+            hookX += speedBoat;
+            hookwireX += speedBoat;
+            if (boatX > maxXBoat) boatX = maxXBoat;
+            if(hookX > maxHookLeft) {hookX = maxHookLeft; hookwireX = maxHookLeft;}
         }
 
-        if (boatX < minX) boatX = minX;
-        if (boatX > maxXBoat) boatX = maxXBoat;
         boat.style.left = boatX + 'px';
+        hook.style.left = hookX + 'px';
+        hookwire.style.left = hookwireX + 'px';
     }
     
     // hook
@@ -57,18 +71,28 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
+// hook is moving down
 function startHookDown(){
     isHookMoving = true;
 
     hookY = parseFloat(window.getComputedStyle(hook).bottom);
+    hookwireY = parseFloat(window.getComputedStyle(hookwire).bottom)
+    hookwireHeight = parseFloat(hookwire.offsetHeight);
+
+    console.log(hookwireHeight + ' ' + hookwireY);
 
     const hookDownInterval = setInterval(() => {
         hookY -= speedHook;
+        hookwireY -= speedHook;
+        hookwireHeight += speedHook;
 
         if (hookY <= bottomHookBottom) hookY = bottomHookBottom;
 
         hook.style.bottom = hookY + 'px';
+        hookwire.style.bottom = hookwireY + 'px';
+        hookwire.style.height = hookwireHeight + 'px';
 
+        // hits a bottom - wait - start go up
         if (hookY <= bottomHookBottom) {
             clearInterval(hookDownInterval);
             setTimeout(startHookUp, PAUSE_AT_BOTTOM_MS)   
@@ -77,14 +101,22 @@ function startHookDown(){
     }, STEP_MS);
 }
 
+// hook is going up
 function startHookUp(){
     hookY = parseFloat(window.getComputedStyle(hook).bottom);
+    hookwireY = parseFloat(window.getComputedStyle(hookwire).bottom);
+    hookwireHeight = parseFloat(hookwire.offsetHeight);
 
     const hookUpInterval = setInterval(() => {
         hookY += speedHook;
+        hookwireY += speedHook;
+        hookwireHeight -= speedHook;
 
         if(hookY >= topHookBottom) hookY = topHookBottom;
+
         hook.style.bottom = hookY + 'px';
+        hookwire.style.bottom = hookwireY + 'px';
+        hookwire.style.height = hookwireHeight + 'px';
 
         if (hookY >= topHookBottom){
             clearInterval(hookUpInterval);
