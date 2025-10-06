@@ -12,7 +12,7 @@ body{
     height: 700px;
 
     position: relative;         /* children can be absolutely positioned relative to this */
-    background-color: bisque;
+    background-color: #caf0f8;
     border: 2px solid navy;
     border-radius: 6px;
     overflow: hidden;           /* prevents water/fish/boat from overflowing visually */
@@ -21,26 +21,60 @@ body{
 #Water{
     position: absolute;         /* attach to the bottom of GameBorder */
     left: 0; right: 0; bottom: 0;
-    background-color: lightseagreen;
+/*    background-color: lightseagreen; */
+    background: linear-gradient(to bottom, #90e0ef, #0077b6);
     height: 50%;
 }
 #Boat{
     position: absolute;
     bottom: 50%;
     left: 45%;
+    animation: bobbing 3s ease-in-out infinite;
+    z-index: 2;
 }
-/*
-#BoatPlace{
-    
-    background-color: rgb(245, 200, 245);
-    width: 1000px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
+@keyframes bobbing {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(10px); }
 }
-*/
-/*
-    margin: auto;
-transform: translate(-50%);
 
-*/
+#Cloud{
+    position: absolute;
+    left: -10%;
+    animation: cloudR 15s linear infinite;
+    animation-delay: 2s;
+}
+@keyframes cloudR {
+    0% {transform: translateX(-10%);}
+    100% {transform: translateX(1100%);}
+}
+
+.fish{
+    position: absolute;
+    visibility: hidden;
+}
+#Fish1{
+    bottom: 20%;
+
+}
+#Fish2{
+    bottom: 30%;
+
+}
+#Fish3{
+    bottom: 40%;
+}
+
+
+#Hook{
+    position: absolute;
+    left: 48%;
+    bottom: 42%;
+    z-index: 1;
+
+}
+#HookWire{
+    position: absolute;
+    left: 48%;
+    bottom: 48%;
+    z-index: 1;
+}
