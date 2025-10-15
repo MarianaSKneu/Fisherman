@@ -10,7 +10,6 @@ const maxXBoat = gameBorder.offsetWidth - boat.offsetWidth;
 
 const hook = document.getElementById('Hook');
 const hookwire = document.getElementById('HookWire');
-const water = document.getElementById('Water');
 
 const topHookBottom = parseFloat(window.getComputedStyle(hook).bottom);
 const bottomHookBottom = 0;
@@ -38,8 +37,8 @@ const PAUSE_AT_BOTTOM_MS = 1500;
 
 
 document.addEventListener('keydown', (event) => {
-    if (event.code === 'Space') event.preventDefault();
-    
+    if (event.code === 'Space' || event.code === 'ArrowDown') event.preventDefault();
+    // dont scroll page
     // moving the boat
     if (!isHookMoving) {
         // normalize key to lowercase to handle 'A' vs 'a'
@@ -65,7 +64,8 @@ document.addEventListener('keydown', (event) => {
     }
     
     // hook
-    if (event.code === 'Space') {
+    // moves when hitting space
+    if (event.code === 'Space' || event.code === 'ArrowDown') {
         // only start a new cycle if hook isn't already moving
         if (!isHookMoving) startHookDown();
     }
@@ -79,7 +79,7 @@ function startHookDown(){
     hookwireY = parseFloat(window.getComputedStyle(hookwire).bottom)
     hookwireHeight = parseFloat(hookwire.offsetHeight);
 
-    console.log(hookwireHeight + ' ' + hookwireY);
+//    console.log(hookwireHeight + ' ' + hookwireY);
 
     const hookDownInterval = setInterval(() => {
         hookY -= speedHook;
@@ -130,147 +130,203 @@ function startHookUp(){
 
 //  FISH
 
-// 1. direction
-// 2. distance
+// 1. pick direction
+// 2. calculate distance
 // 3. swim
 // 4. wait
 // 5. repeat
 
-// const maxXF = gameBorder.offsetWidth - fish1.offsetWidth;
-const speedFish1 = 3;
+
+
+// min X values for fish
 const minXF = 0;
 
-
+const speedFish = 3;
 const minDistance = 300;
 const PAUSE_MS = 1400;   // wait between moves
 //const STEP_MS = 20;      // how often we update fish position
+
+
 
 // flip the fish image when moving left so it "faces" the movement direction
 function setFishFlip(direction, fish) {
     // direction: -1 left, 1 right
     fish.style.transform = (direction === 1) ? 'scaleX(1)' : 'scaleX(-1)';
 }
+
+
+// when the page is started - pick any 5 fishes from images folder
+// asign any y value
+// fish start swimming to game border
+
+// when fish is caught = number of fiches -1
+// pick any fish from images, fish starts swimming into game border
+
+
+const numberOfFishes = 5;
+
+const water = document.getElementById('Water');
+
+const fishImageFiles = [
+    'Fish200px.png',
+    'Fishv4-200px.png',
+    'Fishv5-200px.png',
+    'Fishv6-200px.png'
+];
+
+function createFish(index){
+
+    let imgIndex = Math.floor(Math.random() * fishImageFiles.length);
+    let imgName = fishImageFiles[imgIndex];
+    let bottomValue = Math.floor(Math.random() * 60);
+
+    const fish = document.createElement('img')
+
+    fish.src = 'images/fishesImgs/' + imgName;
+    fish.classList.add('fish');
+    fish.id = 'Fish' + (index + 1);
+    fish.style.bottom = bottomValue + '%';
+    fish.isCaught = false;
+
+    water.appendChild(fish);
+
+    return fish;
+}
+
+
+// swimming of the fishes in the water
 /*
-// fish movement
-function swimFish(fish) {
-    direction = chooseDirection();
+    const maxXF = gameBorder.offsetWidth - fish.offsetWidth;
+    let fishX = parseFloat(fish.style.left);
+    console.log('fishX : ' + fishX);
 
-    // 2. choose some distance
-    // distance = any number within the border
+*/ 
 
-    setFishFlip(direction, fish)
+function swimLocalFish(fish){
+    const maxXF = gameBorder.offsetWidth - fish.offsetWidth;
+    let fishX = parseFloat(fish.style.left);
+
+    let direction = Math.random() < 0.5 ? -1 : 1; // -1 = left, +1 = right
+    let maxTravel = direction === 1 ? (maxXF - fishX) : (fishX - minXF) ;
+    if (maxTravel < minDistance) direction =  -direction;
+
+    setFishFlip(direction, fish);
 
     let distance = minDistance + Math.random() * (maxXF - minDistance);
 
     // target position (future position)
-    let targetX = Math.max(minXF, Math.min(maxX, fish1X + direction * distance));
+    let targetX = Math.max(minXF, Math.min(maxXF, fishX + direction * distance));
 
-    // 3. swim 
-    const swimInterval = setInterval(() => {
-            if (fish.isCaught) {
-                clearInterval(swimInterval); // stop swimming if caught
-                return;
-            }
+    const swimInterval = setInterval(()=>{
 
-            // move closer to target
-            if (direction === 1 && fish1X < targetX) {
-                fish1X += speedFish1;
-                if (fish1X > targetX) fish1X = targetX;
-            } else if (direction === -1 && fish1X > targetX) {
-                fish1X -= speedFish1;
-                if (fish1X < targetX) fish1X = targetX;
-            }
+        if (fish.isCaught) {
+            clearInterval(swimInterval);
+            return;
+        }
 
-            fish.style.visibility = 'visible';
-            fish.style.left = fish1X + "px";
+        // move closer to target
+        if (direction === 1 && fishX < targetX) {
+            fishX += speedFish;
+            if (fishX > targetX) fishX = targetX;
+        } else if (direction === -1 && fishX > targetX) {
+            fishX -= speedFish;
+            if (fishX < targetX) fishX = targetX;
+        }
 
-            // check if arrived
-            if (fish1X === targetX) {
-                clearInterval(swimInterval);
-                setTimeout(swimFish(fish), PAUSE_MS); // wait, then swim again
-            }
-        }, STEP_MS);
+        fish.style.left = fishX + "px";
+
+        // check if arrived
+        if (fishX === targetX) {
+            clearInterval(swimInterval);
+            setTimeout(() => swimLocalFish(fish), PAUSE_MS); // wait, then swim again
+        }
+    }, STEP_MS);
 
 }
-*/
-const fishes = document.getElementsByClassName('fish');
-// returns an HTML Collection --> need to turn into an array
-const fishesArray = Array.from(fishes);
 
-fishesArray.forEach(fish => {
-    fish.isCaught = false;
-    
-    // start out of border
+
+
+
+// swim into botder then start swimLocalFish
+function swimIntoBorder(fish){
     let fishX = -fish.offsetWidth - Math.round(Math.random() * 200);
     fish.style.left = fishX + 'px';
+    setFishFlip(1, fish); // face right when entering
+
+    // firstly swin to this point
     
-    // then swim to point
-    const entryX = Math.round(gameBorder.offsetWidth * 0.20) + Math.round(Math.random() * 40 - 20); // small random offset
+    const entryX = Math.round(gameBorder.offsetWidth * 0.10) + Math.round(Math.random() * 40); // small random offset
 
-
-    function swimLocalFish(){
-        const speedFish1 = 3;
-        const minXF = 0;
-        const maxXF = gameBorder.offsetWidth - fish.offsetWidth;
+    const swimIntoBorderInterval = setInterval( () => {
         
+        if (fish.isCaught) {
+            clearInterval(swimInterval);
+            return;
+        }
 
-        let direction = Math.random() < 0.5 ? -1 : 1; // -1 = left, +1 = right
-        let maxTravel = direction === 1 ? (maxXF - fishX) : (fishX - minXF) ;
-        if (maxTravel < minDistance) direction =  -direction;
-
-        setFishFlip(direction, fish);
-
-        let distance = minDistance + Math.random() * (maxXF - minDistance);
-
-        // target position (future position)
-        let targetX = Math.max(minXF, Math.min(maxXF, fishX + direction * distance));
-
-        const swimInterval = setInterval(()=>{
-            // move closer to target
-            if (direction === 1 && fishX < targetX) {
-                fishX += speedFish1;
-                if (fishX > targetX) fishX = targetX;
-            } else if (direction === -1 && fishX > targetX) {
-                fishX -= speedFish1;
-                if (fishX < targetX) fishX = targetX;
-            }
-
-            fish.style.visibility = 'visible';
-            fish.style.left = fishX + "px";
-
-            // check if arrived
-            if (fishX === targetX) {
-                clearInterval(swimInterval);
-                setTimeout(swimLocalFish, PAUSE_MS); // wait, then swim again
-            }
-        }, STEP_MS);
-
-    }
-
-    // swim into botder then start swimLocalFish
-
-    function swimIntoBorder(){
+        // fishX = parseFloat(window.getComputedStyle(fish).left);
+        fishX +=speedFish;
+        fish.style.left = fishX + "px";
         fish.style.visibility = 'visible';
-        setFishFlip(1, fish); // face right when entering
+
+        if(fishX >= entryX){
+            clearInterval(swimIntoBorderInterval);
+            setTimeout(() => swimLocalFish(fish), PAUSE_MS);
+        }
+    
+    }, STEP_MS);
+
+}
+
+let fishes = [];
+
+for(let i = 0; i < numberOfFishes; i++){
+    const fish = createFish(i);
+    fishes.push(fish);
+
+    setTimeout(() => swimIntoBorder(fish), 190 * (1 + i))
+}
 
 
-        const swimIntoBorderInterval = setInterval( () => {
-            
-            fishX = parseFloat(window.getComputedStyle(fish).left);
-            fishX +=speedFish1;
-            fish.style.left = fishX + "px";
 
-            if(fishX >= entryX){
-                clearInterval(swimIntoBorderInterval);
-                setTimeout(swimLocalFish, PAUSE_MS);
-            }
-        
-        }, STEP_MS);
 
+
+
+//  NOTEBOOK
+
+// when clicking on notebook button - notebook appears from top of the screeen (goes down to visible field)
+const notebookBtn = document.getElementById('NotebookButton');
+const notebook = document.getElementById('Notebook');
+const shadow = document.getElementById('Shadow');
+
+let notebookDown = false;
+
+function getNotebook(){
+    if (!notebookDown){
+        notebook.style.top = 200 + 'px';
+        notebookDown = true;
+        shadow.style.visibility = 'visible';    
+        shadow.style.backgroundColor = ' rgba(0, 0, 0, 0.223)';
+        shadow.style.zIndex = 9
     }
 
-    // start with swimming into the game border
-    setTimeout(swimIntoBorder, 190)
+    else if (notebookDown){
+        notebook.style.top = -1200 + 'px';
+        notebookDown = false;
+        shadow.style.visibility = 'hidden';
+        shadow.style.backgroundColor = ' rgba(0, 0, 0, 0)';
+        shadow.style.zIndex = -10
+    }
+    
+}
 
-});
+
+
+
+// CONTROLLS
+// fade away after 10 s = 10 000 miliseconds
+setTimeout(() => {
+  const controls = document.getElementById('Controlls');
+  controls.classList.add('hidden');
+}, 10000); 
 
