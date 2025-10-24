@@ -25,9 +25,12 @@ const minHookLeft = hook.offsetLeft - boat.offsetLeft ;
 const maxHookLeft = maxXBoat + hook.offsetWidth;
 
 const speedHook= 3;
-const STEP_MS = 20; 
-const PAUSE_AT_BOTTOM_MS = 1500;
+//const STEP_MS = 20; 
+const PAUSE_AT_BOTTOM_MS = 1000;
 
+// the less number - the more speed
+const STEP_MS_HOOK = 18; 
+const STEP_MS_Fish = 20; 
 // hook is not moving - space - hook starts moving down
 // hook is moving - the boat is not
 // (space again - hook goes up)
@@ -116,7 +119,7 @@ function startHookDown(){
             startHookUp();
         }
        
-    }, STEP_MS);
+    }, STEP_MS_HOOK);
 }
 
 // hook is going up
@@ -162,7 +165,7 @@ function startHookUp(){
                 setTimeout(() => swimIntoBorder(newFish), 300);
             }
         }
-    }, STEP_MS);
+    }, STEP_MS_HOOK);
 }
 
 // The getBoundingClientRect() method returns a DOMRect object with eight properties: 
@@ -265,12 +268,7 @@ const numberOfFishes = 5;
 
 const water = document.getElementById('Water');
 
-const fishImageFiles = [
-    'Fish200px.png',
-    'Fishv4-200px.png',
-    'Fishv5-200px.png',
-    'Fishv6-200px.png'
-];
+let fishImageFiles = [];
 
 function createFish(index){
     fishIndex ++;
@@ -334,7 +332,7 @@ function swimLocalFish(fish){
             clearInterval(swimInterval);
             setTimeout(() => swimLocalFish(fish), PAUSE_MS); // wait, then swim again
         }
-    }, STEP_MS);
+    }, STEP_MS_Fish);
 
 }
 
@@ -369,7 +367,7 @@ function swimIntoBorder(fish){
             setTimeout(() => swimLocalFish(fish), PAUSE_MS);
         }
     
-    }, STEP_MS);
+    }, STEP_MS_Fish);
 
 }
 
@@ -377,12 +375,36 @@ function swimIntoBorder(fish){
 let fishes = [];
 let fishIndex = 0;
 
-for(let i = 0; i < numberOfFishes; i++){
-    const fish = createFish(i);
+let dataAboutFishes = [];
 
-    setTimeout(() => swimIntoBorder(fish), 190 * (1 + i))
+// function to get data about the fishes for images and notebook
+async function getFishData() {
+    const response = await fetch('fishesData.json');
+    const data = await response.json();
+    return data;
 }
 
+// firstly get all data
+getFishData().then((data) =>{
+    dataAboutFishes = data;
+
+    createFirstFishes();
+})
+
+function createFirstFishes(){
+    // then asign the images to the fishImageFiles[]
+    dataAboutFishes.forEach(item =>{
+        fishImageFiles.push(item.imageFile);
+    })
+
+    // loop that creates the first fishes
+    for(let i = 0; i < numberOfFishes; i++){
+        const fish = createFish(i);
+
+        setTimeout(() => swimIntoBorder(fish), 190 * (1 + i))
+    }
+
+}
 
 
 
@@ -393,12 +415,10 @@ for(let i = 0; i < numberOfFishes; i++){
 // when clicking on notebook button - notebook appears from top of the screeen (goes down to visible field)
 
 const notebookBtn = document.createElement('div');
-const notebook = document.createElement('div');
-const shadow = document.createElement('div');
-
 notebookBtn.id ='NotebookButton';
+
+const notebook = document.createElement('div');
 notebook.id = 'Notebook';
-shadow.id = 'Shadow';
 
 const notebookImg = document.createElement('img');
 notebookImg.src = 'images/Notebook200px.png';
@@ -412,14 +432,19 @@ notebookImgLight.classList.add('light');
 notebookBtn.appendChild(notebookImg);
 notebookBtn.appendChild(notebookImgLight);
 
-let notebookDown = false;
+
+const shadow = document.createElement('div');
+shadow.id = 'Shadow';
 
 // notebook goes down from the top, shadow appears
 // notebook goes up - shadow dissapears
 
+let notebookDown = false;
+
 function getNotebook(){
     if (!notebookDown){
-        notebook.style.top = 100 + 'px';
+        //notebook.style.top = 100 + 'px';
+        notebook.style.transform = 'translateY(1000px)'
         notebookDown = true;
         shadow.style.visibility = 'visible';    
         shadow.style.backgroundColor = ' rgba(0, 0, 0, 0.223)';
@@ -427,7 +452,8 @@ function getNotebook(){
     }
 
     else if (notebookDown){
-        notebook.style.top = -1200 + 'px';
+        //notebook.style.top = -1200 + 'px';
+        notebook.style.transform = 'translateY(-1000px)'
         notebookDown = false;
         shadow.style.visibility = 'hidden';
         shadow.style.backgroundColor = ' rgba(0, 0, 0, 0)';
@@ -436,6 +462,34 @@ function getNotebook(){
     
 }
 
+// notebook loops / rings (decor) to the left
+const notebookLoops = document.createElement('div');
+notebookLoops.classList.add('notebookLoops');
+let numberOfLopps = 3;
+
+for (let i=0; i<numberOfLopps; i++){
+    const loop = document.createElement('div');
+    loop.id = 'loop' + (i+1);
+    loop.style.width = '60px';
+    loop.style.height = '25px';
+    loop.style.backgroundColor = 'rgb(101, 98, 98)';
+    loop.style.border = '2px solid black';
+    loop.style.borderRadius = '8px';
+
+    notebookLoops.appendChild(loop);
+}
+
+// the layout of the notebook
+notebook.innerHTML = `
+    <h1>Journal</h1>
+    <div id='fishImg'> image </div>
+    <button id='btnleftArrow'>&lt;</button>
+    <button id='btnRightArrow'>&gt;</button>
+    <h2 id='h2nameFish'>Name fish </h2>
+    <p id='fishDecriptionP'>fish text </p>
+`
+notebook.appendChild(notebookLoops);
+
 notebookBtn.addEventListener('click', getNotebook);
 // clickong on the shadow = clicking on the notebookButton
 shadow.addEventListener('click', getNotebook);
@@ -443,6 +497,16 @@ shadow.addEventListener('click', getNotebook);
 gameBorder.appendChild(notebookBtn);
 gameBorder.appendChild(notebook);
 gameBorder.appendChild(shadow);
+
+
+// get inforamtion about the fishes
+// dataAboutFishes[]
+const btnLeft = document.getElementById('btnleftArrow');
+const btnRight = document.getElementById('btnRightArrow');
+const fishImgBox = document.getElementById('fishImg');
+const h2name = document.getElementById('h2nameFish');
+const pDesc = document.getElementById('fishDecriptionP');
+
 
 
 // CONTROLLS

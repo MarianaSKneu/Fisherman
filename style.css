@@ -4,12 +4,13 @@ body{
     display: flex;
     justify-content: center;
     align-items: center;
-
+    margin: 0;
+    padding: 0;
 }
 
 #GameBorder{
-    width: 1000px;
-    height: 700px;
+    width: 70vw;
+    aspect-ratio: 10 / 6;
 
     position: relative;         /* children can be absolutely positioned relative to this */
     background-color: #caf0f8;
@@ -25,6 +26,39 @@ body{
     background: linear-gradient(to bottom, #90e0ef, #0077b6);
     height: 50%;
 }
+#Sand{
+    position: absolute;
+    bottom: 0px;
+    height: 10vh;
+    width: 90vw;
+
+    background-image: url(images/Sand3.png);
+    background-repeat: repeat-x;
+    background-size: 80px auto;
+
+}
+.stones{
+    position: absolute;
+    bottom: 1%;
+    z-index: 1;
+}
+#Stone1{
+    left: 70%;
+    rotate: -8deg;
+}
+#Stone2{
+    left: 90%;
+    rotate: 10deg;
+}
+#Stone3{
+    left: 10%;
+}
+#Stone4{
+    left: 15%;
+    rotate: -3deg;
+}
+
+
 #Boat{
     position: absolute;
     bottom: 49%;
@@ -41,11 +75,11 @@ body{
     position: absolute;
     left: -10%;
     animation: cloudR 15s linear infinite;
-    animation-delay: 2s;
+
 }
 @keyframes cloudR {
-    0% {transform: translateX(-10%);}
-    100% {transform: translateX(1100%);}
+    0% {transform: translateX(-10vw);}
+    100% {transform: translateX(100vw);}
 }
 
 .fish{
@@ -53,7 +87,6 @@ body{
     visibility: hidden;
     width: 60px;
 }
-
 
 #Hook{
     position: absolute;
@@ -109,13 +142,87 @@ body{
 
 #Notebook{
     position: absolute;
-    width: 500px;
-    height: 500px;
-    top: -1000px;
-    background-color: indigo;
-    left: 200px;
-    transition: 2s ease-in-out;
+    width: 400px;
+    height: 510px;
+    top: -930px;
+    background-color: rgb(232, 223, 199);
+    border: 2px solid #e6904e;
+    border-radius: 8px;
+    box-shadow: 5px 5px 0px rgb(178, 170, 146), 2px 5px 0px rgb(178, 170, 146);
+    left: 35%;
+    transition: transform 2s ease-in-out;
     z-index: 10;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+
+    > #fishImg{
+        background-color: darkmagenta;
+        border: 2px solid black;
+        border-radius: 8px;
+        width: 180px;
+        height: 180px;
+        padding: 10px;
+    }
+
+    > h1, h2, p {
+        padding: 8px;
+        font-family: Tahoma, sans-serif;
+    }
+    > h1 {
+        margin-bottom: 30px;
+    }
+    > h2 {
+        margin-top: 10px;
+        margin-bottom: 0;
+        padding-bottom: 8px;
+        font-weight: 400;
+        font-size: 24px;
+    }
+
+    > p {
+        margin: 0;
+        padding-top: 0;
+    }
+}
+
+#btnleftArrow, #btnRightArrow {
+    position: absolute;
+    top: 65%;        
+    width: 36px;
+    height: 36px;
+    margin: 0;
+    padding: 6px;
+    background-color: rgb(230, 207, 230);
+    border: 2px solid grey;
+    border-radius: 8px;
+    cursor: pointer;
+    z-index: 11;
+}
+#btnleftArrow:hover, #btnRightArrow:hover { background-color: rgb(206, 159, 206); border-color: rgb(101,98,98); }
+#btnleftArrow:active, #btnRightArrow:active { 
+    background-color: rgb(186, 138, 186); 
+    border-color: rgb(84, 77, 77); 
+    transform: translateY(4px);
+}
+#btnleftArrow { left: 12px; }
+#btnRightArrow { right: 12px; }
+
+
+.notebookLoops {
+    padding-top: 30px ;
+    padding-bottom: 20px ;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    height: 90%;
+    gap: 0;
+
+    left: -6%;
 }
 
 #Shadow{
@@ -156,4 +263,13 @@ body{
 #Controlls.hidden {
     opacity: 0;
     pointer-events: none; /* optional: ignore clicks after fade */
+}
+
+
+
+@media (max-width: 1300px) {
+    #GameBorder{
+    width: 90vw;
+    aspect-ratio: 10 / 6;
+    }
 }
