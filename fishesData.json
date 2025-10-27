@@ -2,5 +2,7 @@
     {"name": "Carp", "imageFile": "Fish200px.png", "text" : "Just a carp. Simple to catch, simple to grow on your own in the pond."} ,
     {"name": "Red stripped fashon", "imageFile": "Fishv4-200px.png", "text":"Got their name for their stripes, that are very visible even in the low light."},
     {"name": "Ordinary whiteheaded stole", "imageFile": "Fishv5-200px.png", "text":"Very delicious when fried with pepper and vegetable. Locals prefer them over anything."},
-    {"name": "Blue stripped royaner 'Roya'", "imageFile": "Fishv6-200px.png", "text":"Quite rare in other waters, because this type of fish loves to hang out here. Scientists stiil figuring out why. What is so special about these waters?"}
+    {"name": "Blue stripped royaner 'Roya'", "imageFile": "Fishv6-200px.png", "text":"Quite rare in other waters, because this type of fish loves to hang out here. Scientists stiil figuring out why. What is so special about these waters?"},
+    {"name": "Kerata carp", "imageFile": "Fishv7-200px.png", "text":"Named after the waters Kerata not far from this place. The fish loves traveling a lot, for some reason. Both in groups and on their own."},
+    {"name": "Blue finged stripped sott", "imageFile": "Fishv8-200px.png", "text":"Stripes. Obviously. Best served with vegetables and souses. The locals have at least 5 different dishes with this fish."}
 ]

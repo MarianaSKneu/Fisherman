@@ -2,6 +2,7 @@
 const boat = document.getElementById('Boat');
 const gameBorder = document.getElementById('GameBorder');
 
+let t = 0;
 let boatX = gameBorder.offsetWidth / 2 - boat.offsetWidth / 2;
 
 const speedBoat = 20;
@@ -51,7 +52,8 @@ document.addEventListener('keydown', (event) => {
     if (event.code === 'Space' || event.code === 'ArrowDown') event.preventDefault();
     // dont scroll page
     // moving the boat
-    if (!isHookMoving) {
+    // works only when the hook is not down and notebook is not down
+    if (!isHookMoving && !notebookDown) {
         // normalize key to lowercase to handle 'A' vs 'a'
         const k = (event.key || '').toLowerCase();
         if (k === 'arrowleft' || k === 'a') {
@@ -74,6 +76,18 @@ document.addEventListener('keydown', (event) => {
         hookwire.style.left = hookwireX + 'px';
     }
     
+    // for the notebook buttons left/right to get fish info
+    else if(notebookDown) {
+        if (event.key === 'ArrowLeft') {
+            event.preventDefault();
+            btnLeft.click(); // trigger same logic as button
+        } 
+        else if (event.key === 'ArrowRight') {
+            event.preventDefault();
+            btnRight.click();
+        }
+    }
+
     // hook
     // moves when hitting space
     if (event.code === 'Space' || event.code === 'ArrowDown') {
@@ -379,9 +393,15 @@ let dataAboutFishes = [];
 
 // function to get data about the fishes for images and notebook
 async function getFishData() {
-    const response = await fetch('fishesData.json');
-    const data = await response.json();
-    return data;
+    try {
+        const response = await fetch('fishesData.json');
+        const data = await response.json();       
+        return data;
+    }
+    catch (error) {
+        console.log('An error happened. Cant access data.')
+    }
+
 }
 
 // firstly get all data
@@ -389,19 +409,25 @@ getFishData().then((data) =>{
     dataAboutFishes = data;
 
     createFirstFishes();
+
+    // and fill in notebook
+    fillNotebook(IndexDataAbout);
 })
 
 function createFirstFishes(){
-    // then asign the images to the fishImageFiles[]
-    dataAboutFishes.forEach(item =>{
-        fishImageFiles.push(item.imageFile);
-    })
+    // if data exist
+    if (dataAboutFishes){
+        // then asign the images to the fishImageFiles[]
+        dataAboutFishes.forEach(item =>{
+            fishImageFiles.push(item.imageFile);
+        })
 
-    // loop that creates the first fishes
-    for(let i = 0; i < numberOfFishes; i++){
-        const fish = createFish(i);
+        // loop that creates the first fishes
+        for(let i = 0; i < numberOfFishes; i++){
+            const fish = createFish(i);
 
-        setTimeout(() => swimIntoBorder(fish), 190 * (1 + i))
+            setTimeout(() => swimIntoBorder(fish), 190 * (1 + i))
+        }
     }
 
 }
@@ -444,20 +470,16 @@ let notebookDown = false;
 function getNotebook(){
     if (!notebookDown){
         //notebook.style.top = 100 + 'px';
-        notebook.style.transform = 'translateY(1000px)'
+        notebook.style.transform = 'translateY(600px)'
         notebookDown = true;
-        shadow.style.visibility = 'visible';    
-        shadow.style.backgroundColor = ' rgba(0, 0, 0, 0.223)';
-        shadow.style.zIndex = 9
+        shadow.classList.add('visible');
     }
 
     else if (notebookDown){
         //notebook.style.top = -1200 + 'px';
-        notebook.style.transform = 'translateY(-1000px)'
+        notebook.style.transform = 'translateY(-600px)'
         notebookDown = false;
-        shadow.style.visibility = 'hidden';
-        shadow.style.backgroundColor = ' rgba(0, 0, 0, 0)';
-        shadow.style.zIndex = 1
+        shadow.classList.remove('visible');
     }
     
 }
@@ -482,7 +504,7 @@ for (let i=0; i<numberOfLopps; i++){
 // the layout of the notebook
 notebook.innerHTML = `
     <h1>Journal</h1>
-    <div id='fishImg'> image </div>
+    <div id='fishImg'><img id="fishImageHere" src="" alt="fish image"></img></div>
     <button id='btnleftArrow'>&lt;</button>
     <button id='btnRightArrow'>&gt;</button>
     <h2 id='h2nameFish'>Name fish </h2>
@@ -501,12 +523,73 @@ gameBorder.appendChild(shadow);
 
 // get inforamtion about the fishes
 // dataAboutFishes[]
+// for now have only 4 fishes types
 const btnLeft = document.getElementById('btnleftArrow');
 const btnRight = document.getElementById('btnRightArrow');
-const fishImgBox = document.getElementById('fishImg');
+/*const fishImgBox = document.getElementById('fishImg');*/
 const h2name = document.getElementById('h2nameFish');
 const pDesc = document.getElementById('fishDecriptionP');
 
+const fishImgNotebook = document.getElementById('fishImageHere');
+
+
+let IndexDataAbout = 0;
+
+btnLeft.addEventListener('click', () =>{
+    IndexDataAbout = IndexDataAbout - 1;
+    fillNotebook(IndexDataAbout);
+})
+
+btnRight.addEventListener('click', () =>{
+    IndexDataAbout = IndexDataAbout + 1;
+    fillNotebook(IndexDataAbout);
+})
+
+function fillNotebook(index){
+    if (!dataAboutFishes) {
+        fishImgNotebook.src = '';
+        h2name.textContent = 'No data';
+        pDesc.textContent = '';
+        return
+    };
+    const maxIndexNumber = dataAboutFishes.length;
+
+    if (maxIndexNumber == 0) {
+        fishImgNotebook.src = '';
+        h2name.textContent = 'No data';
+        pDesc.textContent = '';
+        return;
+    }
+
+    else if (index < 0) {
+        IndexDataAbout = maxIndexNumber - 1
+    }
+    else if (index >= maxIndexNumber) {
+        IndexDataAbout = 0;
+    }
+
+    const fishInfo = dataAboutFishes[IndexDataAbout];
+
+    fishImgNotebook.src = `images/fishesImgs/${fishInfo.imageFile}`;
+    h2name.textContent = `${fishInfo.name}`;
+    pDesc.textContent = `${fishInfo.text}`;
+}
+
+/*
+const len = dataAboutFishes.length;
+  if (len === 0) {
+    // optional: clear UI / show placeholder
+    if (fishImgImg) fishImgImg.src = '';
+    h2name.textContent = 'No data';
+    pDesc.textContent = '';
+    return;
+  }
+
+*/ 
+
+// fill in notebook firstly with first fish info
+// in the getData().then
+// so after the data has been loaded
 
 
 // CONTROLLS
