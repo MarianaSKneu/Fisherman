@@ -285,11 +285,14 @@ body{
 }
 
 
-/*
+
 @media (max-width: 1300px) {
     #GameBorder{
-    width: 90vw;
-    aspect-ratio: 10 / 6;
+        width: 90vw;
+        height: 85vh;
+    }
+    #Notebook {
+        left: 20%;
+        top: -580px;
     }
 }
-*/
